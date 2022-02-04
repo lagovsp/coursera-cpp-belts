@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <forward_list>
-#include <iterator>
 #include <list>
 #include <numeric>
 #include <string>
@@ -12,7 +11,7 @@ using namespace std;
 
 template<typename ForwardIterator, typename UnaryPredicate>
 ForwardIterator max_element_if(ForwardIterator first, ForwardIterator last, UnaryPredicate pred) {
-  auto ans = std::find_if(first, last, pred);
+  auto ans = find_if(first, last, pred);
   for (auto it = ans; it != last; ++it) {
 	if (ans != it && pred(*it) && *it > *ans) {
 	  ans = it;
@@ -33,13 +32,6 @@ void TestUniqueMax() {
   vector<int> numbers(10);
   iota(numbers.begin(), numbers.end(), 1);
 
-  /*
-    Мы не используем AssertEqual, потому что для итераторов
-    отсутствует перегрузка оператора вывода в поток ostream.
-    Разыменование здесь также недопустимо, так как оно может повлечь
-    неопределенное поведение, если функция max_element_if, к примеру,
-    вернула итератор, указывающий на конец контейнера.
-  */
   Assert(
 	  max_element_if(numbers.begin(), numbers.end(), IsEven) == --numbers.end(),
 	  "Expect the last element");
@@ -89,5 +81,6 @@ int main() {
   tr.RunTest(TestUniqueMax, "TestUniqueMax");
   tr.RunTest(TestSeveralMax, "TestSeveralMax");
   tr.RunTest(TestNoMax, "TestNoMax");
+
   return 0;
 }

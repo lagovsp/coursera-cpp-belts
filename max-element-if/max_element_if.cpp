@@ -1,5 +1,6 @@
 #include "test_runner.h"
 
+#include <algorithm>
 #include <forward_list>
 #include <iterator>
 #include <list>
@@ -11,15 +12,13 @@ using namespace std;
 
 template<typename ForwardIterator, typename UnaryPredicate>
 ForwardIterator max_element_if(ForwardIterator first, ForwardIterator last, UnaryPredicate pred) {
-  auto ans = first;
-  size_t pred_counter = 0;
-  for (auto it = first; it != last; ++it) {
-	if (pred(*it) && (*it > *ans)) {
+  auto ans = std::find_if(first, last, pred);
+  for (auto it = ans; it != last; ++it) {
+	if (ans != it && pred(*it) && *it > *ans) {
 	  ans = it;
-	  ++pred_counter;
 	}
   }
-  return (pred_counter > 0 && std::distance(first, last) > 0) ? ans : last;
+  return ans;
 }
 
 void TestUniqueMax() {

@@ -30,47 +30,18 @@ ostream &operator<<(ostream &os, const Time &t) {
 }
 
 istream &operator>>(istream &is, Date &d) {
-  vector<int> dates;
-  string got, accumulated;
-  is >> got;
-  for (size_t it = 0; it < got.size(); ++it) {
-	if (it == got.size() - 1) {
-	  accumulated += got[it];
-	  dates.push_back(stoi(accumulated));
-	  break;
-	}
-	if (got[it] == '-') {
-	  dates.push_back(stoi(accumulated));
-	  accumulated.clear();
-	  continue;
-	}
-	accumulated += got[it];
-  }
-  d.year = dates[0];
-  d.month = dates[1];
-  d.day = dates[2];
+  is >> d.year;
+  is.ignore(1);
+  is >> d.month;
+  is.ignore(1);
+  is >> d.day;
   return is;
 }
 
 istream &operator>>(istream &is, Time &t) {
-  vector<int> nums;
-  string got, accumulated;
-  is >> got;
-  for (size_t it = 0; it < got.size(); ++it) {
-	if (it == got.size() - 1) {
-	  accumulated += got[it];
-	  nums.push_back(stoi(accumulated));
-	  break;
-	}
-	if (got[it] == ':') {
-	  nums.push_back(stoi(accumulated));
-	  accumulated.clear();
-	  continue;
-	}
-	accumulated += got[it];
-  }
-  t.hours = nums[0];
-  t.minutes = nums[1];
+  is >> t.hours;
+  is.ignore(1);
+  is >> t.minutes;
   return is;
 }
 

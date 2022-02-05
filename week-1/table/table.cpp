@@ -16,8 +16,8 @@ public:
 
   void Resize(size_t w, size_t h) {
     table.resize(w);
-    for (auto &item : table) {
-      item.resize(h);
+    for (auto &pos : table) {
+      pos.resize(h);
     }
   }
 

@@ -1,14 +1,23 @@
 #pragma once
 
+#include <sstream>
+#include <stdexcept>
 #include <iostream>
 #include <map>
 #include <set>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 using namespace std;
+
+template<class T>
+bool operator==(const vector<T> &v1, const vector<T> v2) {
+  if (v1.size() != v2.size()) return false;
+  for (size_t i = 0; i < v1.size(); ++i) {
+	if (v1[i] != v2[i]) return false;
+  }
+  return true;
+}
 
 template<class T>
 ostream &operator<<(ostream &os, const vector<T> &s) {
@@ -95,20 +104,19 @@ class TestRunner {
   int fail_count = 0;
 };
 
-#define ASSERT_EQUAL(x, y)             \
-  {                                    \
-	ostringstream os;                  \
-	os << #x << " != " << #y << ", "   \
-	   << __FILE__ << ":" << __LINE__; \
-	AssertEqual(x, y, os.str());       \
-  }
+#define ASSERT_EQUAL(x, y) {            \
+  ostringstream oss;                    \
+  oss << #x << " != " << #y << ", "     \
+    << __FILE__ << ":" << __LINE__;     \
+  AssertEqual(x, y, oss.str());         \
+}
 
-#define ASSERT(x)                      \
-  {                                    \
-	ostringstream os;                  \
-	os << #x << " is false, "          \
-	   << __FILE__ << ":" << __LINE__; \
-	Assert(x, os.str());               \
-  }
+#define ASSERT(x) {                     \
+  ostringstream os;                     \
+  os << #x << " is false, "             \
+    << __FILE__ << ":" << __LINE__;     \
+  Assert(x, os.str());                  \
+}
 
-#define RUN_TEST(tr, func) tr.RunTest(func, #func)
+#define RUN_TEST(tr, func) \
+  tr.RunTest(func, #func)

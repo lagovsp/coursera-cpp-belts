@@ -12,9 +12,13 @@ using namespace std;
 
 template<class T>
 bool operator==(const vector<T> &v1, const vector<T> v2) {
-  if (v1.size() != v2.size()) return false;
+  if (v1.size() != v2.size()) {
+	return false;
+  }
   for (size_t i = 0; i < v1.size(); ++i) {
-	if (v1[i] != v2[i]) return false;
+	if (v1[i] != v2[i]) {
+	  return false;
+	}
   }
   return true;
 }
@@ -105,10 +109,10 @@ class TestRunner {
 };
 
 #define ASSERT_EQUAL(x, y) {            \
-  ostringstream oss;                    \
-  oss << #x << " != " << #y << ", "     \
+  ostringstream osASSERT;               \
+  osASSERT << #x << " != " << #y << ", "\
     << __FILE__ << ":" << __LINE__;     \
-  AssertEqual(x, y, oss.str());         \
+  AssertEqual(x, y, osASSERT.str());    \
 }
 
 #define ASSERT(x) {                     \
@@ -118,5 +122,4 @@ class TestRunner {
   Assert(x, os.str());                  \
 }
 
-#define RUN_TEST(tr, func) \
-  tr.RunTest(func, #func)
+#define RUN_TEST(tr, func) tr.RunTest(func, #func)

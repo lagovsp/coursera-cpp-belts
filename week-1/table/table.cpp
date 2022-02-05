@@ -7,14 +7,7 @@ private:
   std::vector<std::vector<T>> table;
 
 public:
-  Table(size_t w, size_t h) {
-    w = (h == 0) ? 0 : w;
-    h = (w == 0) ? 0 : h;
-    table.resize(w);
-    for (auto itW = table.begin(); itW != table.end(); ++itW) {
-      itW->resize(h);
-    }
-  }
+  Table(size_t w, size_t h) { Resize(w, h); }
 
   std::vector<T> &operator[](const size_t ind) { return table[ind]; }
   const std::vector<T> &operator[](const size_t ind) const {
@@ -22,23 +15,9 @@ public:
   }
 
   void Resize(size_t w, size_t h) {
-    std::vector<std::vector<T>> temp = std::move(table);
-    w = (h == 0) ? 0 : w;
-    h = (w == 0) ? 0 : h;
-
-    auto tempW = temp.size();
-    auto tempH = (!temp.empty()) ? temp[0].size() : 0;
-
     table.resize(w);
-    for (size_t itW = 0; itW < table.size(); ++itW) {
-      table[itW].resize(h);
-      for (size_t itH = 0; itH < table[itW].size(); ++itH) {
-        if (itW < tempW && itH < tempH) {
-          table[itW][itH] = std::move(temp[itW][itH]);
-        } else {
-          table[itW][itH] = T();
-        }
-      }
+    for (auto &item : table) {
+      item.resize(h);
     }
   }
 

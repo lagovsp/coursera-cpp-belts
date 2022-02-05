@@ -1,4 +1,3 @@
-#include "test_runner.h"
 #include <iostream>
 #include <vector>
 
@@ -9,8 +8,9 @@
     }                                                                          \
   } while (false)
 
-template <typename T> class Deque {
-public:
+template<typename T>
+class Deque {
+ public:
   Deque() = default;
 
   bool Empty() const { return f.empty() && b.empty(); }
@@ -20,21 +20,21 @@ public:
   void PushBack(const T &item) { b.push_back(item); }
 
   T &operator[](size_t index) {
-    return index < f.size() ? f[f.size() - index - 1] : b[index - f.size()];
+	return index < f.size() ? f[f.size() - index - 1] : b[index - f.size()];
   }
 
   const T &operator[](size_t index) const {
-    return index < f.size() ? f[f.size() - index - 1] : b[index - f.size()];
+	return index < f.size() ? f[f.size() - index - 1] : b[index - f.size()];
   }
 
   T &At(size_t index) {
-    DEQUE_EXCEPTION;
-    return (*this)[index];
+	DEQUE_EXCEPTION;
+	return (*this)[index];
   }
 
   const T &At(size_t index) const {
-    DEQUE_EXCEPTION;
-    return this->operator[](index);
+	DEQUE_EXCEPTION;
+	return this->operator[](index);
   }
 
   T &Front() { return f.empty() ? b.front() : f.back(); }
@@ -43,6 +43,10 @@ public:
   T &Back() { return b.empty() ? f.front() : b.back(); }
   const T &Back() const { return b.empty() ? f.front() : b.back(); }
 
-private:
+ private:
   std::vector<T> f, b;
 };
+
+int main() {
+  return 0;
+}

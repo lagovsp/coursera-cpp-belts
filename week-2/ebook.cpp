@@ -1,68 +1,77 @@
-#include <set>
 #include <vector>
 #include <iomanip>
+#include <numeric>
 #include <iostream>
-#include <algorithm>
-#include <unordered_map>
+
+#include "test_runner.h"
+#include "profiler.h"
 
 using namespace std;
 
-typedef multiset<size_t> ms;
-typedef ms::iterator ms_iter;
-typedef unordered_map<size_t, ms_iter> um;
-typedef um::iterator um_iter;
-
 class ReadingManager {
  public:
-  ReadingManager() :
-	  rating_by_page(MAX_PAGES + 1, 1),
-	  max_page(0) {}
+  ReadingManager() : pages_by_user(USERS_LIMIT + 1, 0),
+					 users_by_page(PAGES_LIMIT + 1, 0),
+					 users(0),
+					 max_page(0),
+					 rating(PAGES_LIMIT + 1, 1) {}
 
   void Read(const size_t user_id, const size_t page) {
 	max_page = max(max_page, page);
-	auto umu = umus.find(user_id);
-	size_t lowest_page = 0;
-	if (umu == umus.cend()) {
-	  umu = umus.insert({user_id, msps.insert(page)}).first;
+	size_t prev_page = 0, max_p = max_page;
+	if (pages_by_user[user_id] == 0) {
+	  ++users;
 	} else {
-	  lowest_page = *umu->second;
-	  msps.erase(umu->second);
-//	  umu->second = msps.insert(page);
-	  umu->second = msps.insert(msps.lower_bound(page), page);
+	  prev_page = pages_by_user[user_id];
+	  max_p = page;
+	  --users_by_page[pages_by_user[user_id]];
 	}
-	Adjust(umu, lowest_page);
+	pages_by_user[user_id] = page;
+	++users_by_page[page];
+	if (users > 1) {
+	  Adjust(prev_page, max_p);
+	}
   }
 
-  [[nodiscard]] double Cheer(size_t user_id) const {
-	if (umus.find(user_id) == umus.cend()) {
+  [[nodiscard]] double Cheer(const size_t user_id) const {
+	if (pages_by_user[user_id] == 0) {
 	  return 0;
 	}
-	return (msps.size() == 1) ? 1 : rating_by_page[*umus.find(user_id)->second];
+	if (users == 1) {
+	  return 1;
+	}
+	return rating[pages_by_user[user_id]];
   }
 
  private:
-  static const size_t MAX_PAGES = 1000;
+  static const size_t PAGES_LIMIT = 1000;
+  static const size_t USERS_LIMIT = 100'000;
 
-  size_t max_page;
-  ms msps;
-  um umus;
-  vector<double> rating_by_page;
+  size_t users, max_page;
+  vector<size_t> pages_by_user;
+  vector<size_t> users_by_page;
+  vector<double> rating;
 
-  void Adjust(const um_iter &it, const size_t lowest_page) {
-	if (umus.size() > 1) {
-//	  auto rit = msps.lower_bound(*it->second);
-	  auto rit = it->second;
-	  size_t readers = distance(msps.cbegin(), rit);
-	  size_t i = (umus.size() == 2) ? max_page : *it->second;
-	  for (; lowest_page < i; --i) {
-		if ((msps.find(i) != msps.cend())) {
-		  auto lit = msps.lower_bound(i);
-		  readers -= distance(lit, rit);
-		  rit = lit;
-		  rating_by_page[i] = double(readers) / (umus.size() - 1);
-		}
+  void Adjust(const size_t page, const size_t page_up) {
+	for (size_t i = page_up; i > page; --i) {
+	  size_t others = 0;
+	  for (size_t it = 0; it < i; ++it) {
+		others += users_by_page[it];
 	  }
+//	  cout << "rating p"<<i<<" = " << others << " / " << users - 1 << endl;
+	  rating[i] =
+		  static_cast<double>(others) / static_cast<double>(users - 1);
 	}
+//	cout << "pages with rating: ";
+//	for (size_t it = 0; it < 15; ++it) {
+//	  cout << rating[it] << " ";
+//	}
+//	cout << endl;
+//	cout << "users by pages: ";
+//	for (size_t it = 0; it < 15; ++it) {
+//	  cout << "p" << it << ": " << users_by_page[it] << " ";
+//	}
+//	cout << endl;
   }
 };
 
@@ -70,7 +79,35 @@ int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
 
-//  answers are good, though these fail
+//  ReadingManager manager;
+//  manager.Read(1, 1);
+//  manager.Read(1, 3);
+//  manager.Read(2, 2);
+//  cout << manager.Cheer(1) << endl;
+//  ASSERT_EQUAL(manager.Cheer(1), 1.0);
+//  ASSERT_EQUAL(manager.Cheer(2), 0.0);
+//  {// reverse order
+//	manager.Read(4, 5);
+//	manager.Read(3, 4);
+//	manager.Read(2, 3);
+//	manager.Read(1, 2);
+//	ASSERT_EQUAL(manager.Cheer(3), 2.0 / 3.0);
+//  }
+
+//  { /*two users read two times*/
+//	ReadingManager manager;
+//	manager.Read(4, 5);
+//	manager.Read(3, 4);
+//	manager.Read(4, 6);
+//	manager.Read(3, 5);
+//	ASSERT_EQUAL(manager.Cheer(4), 1.0);
+//	ASSERT_EQUAL(manager.Cheer(3), 0.0);
+//	manager.Read(10, 2);
+//	ASSERT_EQUAL(manager.Cheer(3), 0.5);
+//	ASSERT_EQUAL(manager.Cheer(4), 1.0);
+//	cout << "tests good" << endl;
+//  }
+
 //  ReadingManager manager;
 //  manager.Read(1, 1);
 //  manager.Read(2, 2);
@@ -80,7 +117,6 @@ int main() {
 //  ASSERT_EQUAL(manager.Cheer(3), 2.0 / 3.0);
 
   ReadingManager manager;
-
   int query_count;
   cin >> query_count;
 

@@ -61,6 +61,7 @@ class ReadingManager {
   }
 };
 
+// ALL TESTS PASS
 int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);

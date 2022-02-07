@@ -8,60 +8,59 @@
 
 using namespace std;
 
-class Booker {
- private:
-  struct Booking {
-	uint64_t time = 0;
-	string hotel_name;
-	uint64_t client_id = 0;
-	uint64_t room_count = 0;
-  };
+using HotelEvent = tuple<int64_t, int, int>;
 
-  uint64_t cur_time = 0;
-  queue<Booking> events;
-  map<string, map<uint64_t, uint64_t>> map_cls;
-  map<string, uint64_t> map_rms;
-
-  static const uint64_t SECONDS_DAY = 86'400;
-
-  void Update() {
-	while (!events.empty() && events.front().time + SECONDS_DAY <= cur_time) {
-	  auto f = events.front();
-	  map_cls[f.hotel_name][f.client_id] -= f.room_count;
-	  if (map_cls[f.hotel_name][f.client_id] == 0) {
-		map_cls[f.hotel_name].erase(f.client_id);
-	  }
-	  map_rms[f.hotel_name] -= f.room_count;
-	  events.pop();
-	}
-  }
-
+class HotelManager {
  public:
-  Booker() = default;
+  HotelManager() = default;
 
-  void Book(const uint64_t time,
-			const string &hotel,
-			const uint64_t client,
-			const uint64_t rooms) {
-	events.push({time, hotel, client, rooms});
-	map_cls[hotel][client] += rooms;
-	map_rms[hotel] += rooms;
+  void DoBook(int64_t time, string &hotel, int user_id, int rooms) {
+	hotel_events[hotel].push_back({time, user_id, rooms});
+	++hotel_unique_clients[hotel][user_id];
+	hotel_rooms_count[hotel] += rooms;
 	cur_time = time;
-	Update();
   }
 
-  [[nodiscard]] uint64_t Clients(const string &hotel) {
-	return map_cls[hotel].size();
+  int GetClientsLast24H(const string &hotel) {
+	if (!hotel_events.count(hotel)) return 0;
+	UpdateHotelEvents(hotel);
+	return static_cast<int>(hotel_unique_clients[hotel].size());
   }
 
-  [[nodiscard]] uint64_t Rooms(const string &hotel) {
-	return map_rms[hotel];
+  int GetRoomsLast24H(const string &hotel) {
+	if (!hotel_events.count(hotel)) return 0;
+	UpdateHotelEvents(hotel);
+	return hotel_rooms_count[hotel];
+  }
+
+ private:
+  static const int ONE_DAY_SEC = 86400;
+  map<string, deque<HotelEvent> > hotel_events;
+  map<string, int> hotel_rooms_count;
+  map<string, map<int, int> > hotel_unique_clients;
+  int64_t cur_time = static_cast<int64_t>(-1e18);
+
+  void UpdateHotelEvents(const string &hotel) {
+	auto &events = hotel_events.at(hotel);
+	while (!events.empty()) {
+	  HotelEvent event = events.front();
+	  auto &[time_, user_id, rooms] = event;
+	  if (time_ + ONE_DAY_SEC <= cur_time) {
+		hotel_rooms_count[hotel] -= rooms;
+		hotel_unique_clients[hotel][user_id] -= 1;
+
+		if (!hotel_unique_clients[hotel][user_id])
+		  hotel_unique_clients[hotel].erase(user_id);
+
+		events.pop_front();
+	  } else break;
+	}
   }
 };
 
 int main() {
   {
-	Booker manager;
+	HotelManager manager;
 	size_t query_count;
 	cin >> query_count;
 	for (size_t query_id = 0; query_id < query_count; ++query_id) {
@@ -75,14 +74,14 @@ int main() {
 		cin >> hotel;
 		cin >> client;
 		cin >> rooms;
-		manager.Book(t, hotel, client, rooms);
+		manager.DoBook(t, hotel, client, rooms);
 	  } else {
 		string hotel;
 		cin >> hotel;
 		if (query_type == "CLIENTS") {
-		  cout << manager.Clients(hotel) << endl;
+		  cout << manager.GetClientsLast24H(hotel) << endl;
 		} else {
-		  cout << manager.Rooms(hotel) << endl;
+		  cout << manager.GetRoomsLast24H(hotel) << endl;
 		}
 	  }
 	}

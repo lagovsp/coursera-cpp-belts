@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "test_runner.h"
-
 using namespace std;
 
 typedef multiset<size_t> ms;
@@ -29,7 +27,8 @@ class ReadingManager {
 	} else {
 	  lowest_page = *umu->second;
 	  msps.erase(umu->second);
-	  umu->second = msps.insert(page);
+//	  umu->second = msps.insert(page);
+	  umu->second = msps.insert(msps.lower_bound(page), page);
 	}
 	Adjust(umu, lowest_page);
   }
@@ -51,7 +50,8 @@ class ReadingManager {
 
   void Adjust(const um_iter &it, const size_t lowest_page) {
 	if (umus.size() > 1) {
-	  auto rit = msps.lower_bound(*it->second);
+//	  auto rit = msps.lower_bound(*it->second);
+	  auto rit = it->second;
 	  size_t readers = distance(msps.cbegin(), rit);
 	  size_t i = (umus.size() == 2) ? max_page : *it->second;
 	  for (; lowest_page < i; --i) {
@@ -59,7 +59,7 @@ class ReadingManager {
 		  auto lit = msps.lower_bound(i);
 		  readers -= distance(lit, rit);
 		  rit = lit;
-		  rating_by_page[i] = double(readers) / double(umus.size() - 1);
+		  rating_by_page[i] = double(readers) / (umus.size() - 1);
 		}
 	  }
 	}

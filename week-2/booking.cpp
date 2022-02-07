@@ -3,30 +3,35 @@
 #include <map>
 #include <iostream>
 
+//#include "test_runner.h"
+//#include "profiler.h"
+
 using namespace std;
 
 class Booker {
  private:
-  struct Event {
-	size_t time;
-	string hotel;
-	size_t client;
-	size_t rooms;
+  struct Booking {
+	uint64_t time = 0;
+	string hotel_name;
+	uint64_t client_id = 0;
+	uint64_t room_count = 0;
   };
 
-  queue<Event> events;
-  mutable map<string, map<size_t, size_t>> hotel_clients;
-  mutable map<string, size_t> hotel_rooms;
-  static const size_t SECONDS_DAY = 86'400;
+  uint64_t cur_time = 0;
+  queue<Booking> events;
+  map<string, map<uint64_t, uint64_t>> map_cls;
+  map<string, uint64_t> map_rms;
 
-  void Update(const size_t time) {
-	while (!events.empty() && events.front().time + SECONDS_DAY <= time) {
-	  auto it = events.front();
-	  hotel_clients[it.hotel][it.client] -= it.rooms;
-	  if (hotel_clients[it.hotel][it.client] == 0) {
-		hotel_clients[it.hotel].erase(it.client);
+  static const uint64_t SECONDS_DAY = 86'400;
+
+  void Update() {
+	while (!events.empty() && events.front().time + SECONDS_DAY <= cur_time) {
+	  auto f = events.front();
+	  map_cls[f.hotel_name][f.client_id] -= f.room_count;
+	  if (map_cls[f.hotel_name][f.client_id] == 0) {
+		map_cls[f.hotel_name].erase(f.client_id);
 	  }
-	  hotel_rooms[it.hotel] -= it.rooms;
+	  map_rms[f.hotel_name] -= f.room_count;
 	  events.pop();
 	}
   }
@@ -34,22 +39,23 @@ class Booker {
  public:
   Booker() = default;
 
-  void Book(const size_t time,
+  void Book(const uint64_t time,
 			const string &hotel,
-			const size_t client,
-			const size_t rooms) {
+			const uint64_t client,
+			const uint64_t rooms) {
 	events.push({time, hotel, client, rooms});
-	hotel_rooms[hotel] += rooms;
-	hotel_clients[hotel][client] += rooms;
-	Update(time);
+	map_cls[hotel][client] += rooms;
+	map_rms[hotel] += rooms;
+	cur_time = time;
+	Update();
   }
 
-  [[nodiscard]] size_t Clients(const string &hotel_name) const {
-	return hotel_clients[hotel_name].size();
+  [[nodiscard]] uint64_t Clients(const string &hotel) {
+	return map_cls[hotel].size();
   }
 
-  [[nodiscard]] size_t Rooms(const string &hotel_name) const {
-	return hotel_rooms[hotel_name];
+  [[nodiscard]] uint64_t Rooms(const string &hotel) {
+	return map_rms[hotel];
   }
 };
 

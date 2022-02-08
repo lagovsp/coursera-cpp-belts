@@ -3,4 +3,4 @@ project(week_3)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(week_3 swap_sort_copy.cpp)
+add_executable(week_3 simple_vector_tests.cpp)

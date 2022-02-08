@@ -3,4 +3,4 @@ project(week_3)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(week_3 simple_vector_tests.cpp)
+add_executable(week_3 linked_list.cpp)

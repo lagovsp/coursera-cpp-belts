@@ -23,11 +23,11 @@ class StackVector {
 	return array_[index];
   }
 
-  auto begin() { return (size_ == 0) ? array_.end() : array_.begin(); }
-  auto end() { return array_.end(); }
+  auto begin() { return array_.begin(); }
+  auto end() { return array_.begin() + size_; }
 
-  auto begin() const { return (size_ == 0) ? array_.end() : array_.begin(); }
-  auto end() const { return array_.end(); }
+  auto begin() const { return array_.begin(); }
+  auto end() const { return array_.begin() + size_; }
 
   [[nodiscard]] size_t Size() const {
 	return size_;

@@ -3,4 +3,4 @@ project(week_5)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(week_5 simple_vector_2.cpp)
+add_executable(week_5 merge_sort_3.cpp)

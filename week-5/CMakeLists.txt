@@ -3,4 +3,4 @@ project(week_5)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(week_5 josephus_permutation.cpp)
+add_executable(week_5 group_heavy_strings.cpp)

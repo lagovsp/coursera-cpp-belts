@@ -19,16 +19,6 @@ vector<Sentence<Token>> SplitIntoSentences(vector<Token> tokens) {
 	  wait_for_end = false;
 	  continue;
 	}
-//	if (!isEnd && !wait_for_end) {
-//	  res.push_back(move(sentence));
-//	  sentence.push_back(move(t));
-//	  wait_for_end = true;
-//	  continue;
-//	}
-//	if (!isEnd && wait_for_end) {
-//	  sentence.push_back(move(t));
-//	  continue;
-//	}
 	if (!isEnd) {
 	  if (!wait_for_end) {
 		res.push_back(move(sentence));

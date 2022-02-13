@@ -3,4 +3,4 @@ project(week_5)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(week_5 split_into_sentences.cpp)
+add_executable(week_5 simple_vector_2.cpp)

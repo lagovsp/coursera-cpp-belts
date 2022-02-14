@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <iterator>
 #include <future>
 
 using namespace std;
@@ -33,6 +34,13 @@ struct Stats {
 	return *this;
   }
 };
+
+// this could be beneficial
+vector<string> Split(const string &line) {
+  // http://en.cppreference.com/w/cpp/iterator/istream_iterator
+  istringstream line_splitter(line);
+  return {istream_iterator<string>(line_splitter), istream_iterator<string>()};
+}
 
 Stats ProcessLine(const set<string> &key_words, const string &line) {
   string tmp;

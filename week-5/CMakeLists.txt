@@ -4,4 +4,4 @@ project(week_5)
 set(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_FLAGS -pthread)
 
-add_executable(task synchronized.cpp)
+add_executable(task concurrent_map.cpp)
